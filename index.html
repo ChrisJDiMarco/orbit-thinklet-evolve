@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Orbit · the game that's never finished — a Thinklet Evolve concept</title>
+<style>
+:root{
+  --ink:#07080d;--ink2:#0c0e16;--ink3:#12151f;--line:rgba(255,255,255,.08);--line2:rgba(255,255,255,.14);
+  --text:#eef0f6;--mute:#8b90a3;--dim:#5d6275;
+  --lime:#d7ff5e;--coral:#ff6b5e;--gold:#ffcf6b;--sky:#8fd3ff;--pink:#ffd1f0;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+  --sans:-apple-system,BlinkMacSystemFont,"SF Pro Text","Inter","Segoe UI",Helvetica,Arial,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--ink);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased;line-height:1.5;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;cursor:pointer;background:none;border:0}
+.wrap{max-width:1180px;margin:0 auto;padding:0 28px}
+.mono{font-family:var(--mono)}
+
+/* nav */
+nav{position:sticky;top:0;z-index:30;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);background:rgba(7,8,13,.72);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:64px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:650;letter-spacing:-.01em;font-size:15px}
+.logo small{font-weight:500;color:var(--mute);font-size:12px;border:1px solid var(--line2);border-radius:999px;padding:2px 8px;margin-left:4px}
+.navlinks{display:flex;gap:28px;font-size:14px;color:var(--mute)}
+.navlinks a:hover{color:var(--text)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:999px;font-weight:600;font-size:14px;border:1px solid var(--line2);transition:transform .2s,background .2s,border-color .2s;white-space:nowrap}
+.btn:hover{transform:translateY(-1px);border-color:rgba(255,255,255,.3)}
+.btn.primary{background:var(--lime);color:#0b0d04;border-color:transparent;box-shadow:0 0 0 0 rgba(215,255,94,.4),0 10px 40px -10px rgba(215,255,94,.45)}
+.btn.small{padding:8px 14px;font-size:13px}
+
+/* hero */
+.hero{position:relative;padding:72px 0 56px;overflow:hidden}
+.hero .bgtree{position:absolute;inset:0;pointer-events:none;opacity:.5}
+.hero .wrap>*,.vote-grid>*,.tree-body>*{min-width:0}
+.hero .wrap{position:relative;display:grid;grid-template-columns:1.02fr 1fr;gap:56px;align-items:center}
+.eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:13px;color:var(--mute);border:1px solid var(--line2);border-radius:999px;padding:7px 14px 7px 10px;background:rgba(255,255,255,.02)}
+.eyebrow b{color:var(--text);font-family:var(--mono);font-weight:500}
+.live{width:8px;height:8px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 0 rgba(215,255,94,.6);animation:ping 1.8s infinite}
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(215,255,94,.55)}100%{box-shadow:0 0 0 10px rgba(215,255,94,0)}}
+h1{font-family:var(--serif);font-weight:400;font-size:clamp(44px,5.2vw,76px);line-height:1.02;letter-spacing:-.025em;margin:26px 0 22px}
+h1 em{font-style:italic;color:var(--lime)}
+.lede{font-size:clamp(17px,1.5vw,19px);color:#c3c7d4;max-width:30em}
+.cta{display:flex;gap:12px;margin-top:32px;flex-wrap:wrap}
+.hstats{display:flex;gap:30px;margin-top:40px;padding-top:26px;border-top:1px solid var(--line);flex-wrap:wrap}
+.hstats div{font-size:13px;color:var(--mute)}
+.hstats b{display:block;font-family:var(--serif);font-weight:400;font-size:30px;color:var(--text);letter-spacing:-.02em;line-height:1.1}
+
+.device{position:relative;border:1px solid var(--line2);border-radius:28px;background:linear-gradient(180deg,#0f1119,#090a10);padding:12px;box-shadow:0 40px 120px -30px rgba(215,255,94,.18),0 0 0 1px rgba(0,0,0,.4) inset}
+.device-top{display:flex;justify-content:space-between;align-items:center;padding:6px 10px 12px;font-size:12px;color:var(--mute);font-family:var(--mono);letter-spacing:.04em}
+.device-top .title{color:var(--text);letter-spacing:.2em}
+.ver{color:var(--lime)}
+.stage{position:relative;aspect-ratio:1/1;border-radius:18px;overflow:hidden;background:#07080d;touch-action:none;user-select:none;-webkit-user-select:none}
+.stage canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:pointer}
+.pill{position:absolute;left:14px;top:14px;font-size:12px;padding:6px 11px;border-radius:999px;background:rgba(7,8,13,.7);border:1px solid var(--line2);color:#cfd3df;pointer-events:none;transition:opacity .4s;backdrop-filter:blur(6px)}
+.pill i{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--gold);margin-right:7px;vertical-align:1px}
+.hint{position:absolute;left:0;right:0;bottom:12px;text-align:center;font-size:12px;color:var(--dim);pointer-events:none}
+.device-bot{display:flex;gap:12px;align-items:center;padding:14px 10px 6px;font-size:13px;color:var(--mute);overflow:hidden;white-space:nowrap}
+.device-bot .tag{flex:none;font-family:var(--mono);font-size:11px;color:#0b0d04;background:var(--lime);border-radius:6px;padding:3px 7px;font-weight:600}
+.device-bot span.t{overflow:hidden;text-overflow:ellipsis}
+
+/* marquee */
+.marquee{border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden;background:var(--ink2)}
+.marquee .track{display:flex;gap:44px;padding:16px 0;width:max-content;animation:scroll 60s linear infinite}
+.marquee .item{font-size:14px;color:var(--mute);white-space:nowrap}
+.marquee .item b{font-family:var(--mono);font-weight:500;color:var(--text);margin-right:8px}
+.marquee .item em{font-style:normal;color:var(--lime)}
+@keyframes scroll{to{transform:translateX(-50%)}}
+
+/* sections */
+section{padding:110px 0}
+.kicker{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--lime);margin-bottom:18px}
+h2{font-family:var(--serif);font-weight:400;font-size:clamp(36px,4.4vw,58px);line-height:1.05;letter-spacing:-.02em;max-width:17em}
+h2 em{font-style:italic;color:var(--mute)}
+.sub{color:#b8bccb;font-size:18px;max-width:36em;margin-top:18px}
+
+/* how */
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;margin-top:56px;background:var(--line);border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.step{background:var(--ink);padding:30px 26px 34px;min-height:230px;position:relative}
+.step .n{font-family:var(--mono);font-size:12px;color:var(--dim)}
+.step h3{font-size:20px;font-weight:600;letter-spacing:-.01em;margin:44px 0 10px}
+.step p{color:var(--mute);font-size:15px}
+.step svg{position:absolute;right:24px;top:26px;opacity:.9}
+
+/* vote */
+.vote-grid{display:grid;grid-template-columns:1fr 1.1fr;gap:56px;align-items:start}
+.panel{border:1px solid var(--line2);border-radius:22px;background:linear-gradient(180deg,var(--ink3),var(--ink2));padding:26px}
+.panel-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:20px;gap:12px}
+.panel-head h3{font-size:16px;font-weight:600}
+.panel-head .cd{font-family:var(--mono);font-size:13px;color:var(--mute)}
+.panel-head .cd b{color:var(--lime);font-weight:500}
+.opt{position:relative;display:block;width:100%;text-align:left;border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-bottom:10px;overflow:hidden;transition:border-color .2s}
+.opt:hover{border-color:rgba(215,255,94,.4)}
+.opt .bar{position:absolute;left:0;top:0;bottom:0;background:rgba(215,255,94,.08);transition:width .8s cubic-bezier(.2,.8,.2,1)}
+.opt .row{position:relative;display:flex;justify-content:space-between;gap:16px;align-items:center}
+.opt .txt{font-size:15px}
+.opt .who{display:block;font-size:12px;color:var(--dim);margin-top:3px}
+.opt .pct{font-family:var(--mono);font-size:14px;color:var(--mute);flex:none}
+.opt.mine{border-color:var(--lime)}
+.opt.mine .pct{color:var(--lime)}
+.suggest{display:flex;gap:8px;margin-top:16px}
+.suggest input{flex:1;min-width:0;background:rgba(255,255,255,.03);border:1px solid var(--line2);border-radius:999px;padding:12px 18px;color:var(--text);font:inherit;font-size:14px;outline:none}
+.suggest input:focus{border-color:rgba(215,255,94,.5)}
+.fine{font-size:12px;color:var(--dim);margin-top:14px}
+.rules{margin-top:36px;display:grid;gap:14px}
+.rule{display:grid;grid-template-columns:36px 1fr;gap:14px;align-items:start}
+.rule .ic{width:36px;height:36px;border-radius:10px;border:1px solid var(--line2);display:grid;place-items:center;font-family:var(--mono);font-size:13px;color:var(--lime)}
+.rule b{display:block;font-weight:600;font-size:15px}
+.rule span{color:var(--mute);font-size:14px}
+
+/* tree */
+#tree{background:radial-gradient(1200px 500px at 50% 0%,rgba(215,255,94,.05),transparent 70%)}
+.tree-shell{margin-top:52px;border:1px solid var(--line2);border-radius:26px;background:var(--ink2);overflow:hidden}
+.tree-scroll{overflow-x:auto;border-bottom:1px solid var(--line);-webkit-overflow-scrolling:touch}
+.tree-scroll svg{display:block;min-width:820px;width:100%;height:auto}
+.node{cursor:pointer}
+.node circle.core{transition:r .2s}
+.node:hover circle.core{r:15}
+.node text{font-family:var(--mono);font-size:11px;fill:#0b0d04;font-weight:600;pointer-events:none}
+.node .lab{fill:var(--mute);font-weight:400;font-size:11px}
+.node.sel .lab{fill:var(--text)}
+.blabel{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+.tree-body{display:grid;grid-template-columns:1fr 1.05fr;gap:0}
+.tree-body .stage{border-radius:0;aspect-ratio:auto;min-height:420px}
+.detail{padding:34px 34px 30px;border-left:1px solid var(--line);display:flex;flex-direction:column}
+.detail .dday{font-family:var(--mono);font-size:12px;color:var(--mute);letter-spacing:.1em;text-transform:uppercase}
+.detail h3{font-family:var(--serif);font-weight:400;font-size:38px;letter-spacing:-.02em;line-height:1.1;margin:10px 0 12px}
+.detail p{color:#c3c7d4;font-size:16px}
+.req{margin-top:18px;display:flex;gap:18px;font-size:13px;color:var(--mute);flex-wrap:wrap}
+.req b{color:var(--text);font-weight:500}
+.genes{margin-top:26px}
+.genes .gl{font-size:12px;color:var(--dim);margin-bottom:10px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:12px;border:1px solid var(--line2);border-radius:999px;padding:5px 10px;color:#cfd3df}
+.chip.new{border-color:currentColor}
+.detail .acts{margin-top:auto;padding-top:28px;display:flex;gap:10px;flex-wrap:wrap}
+
+/* posts */
+.posts{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;margin-top:56px}
+.phone{position:relative;aspect-ratio:9/16;border-radius:30px;overflow:hidden;border:1px solid var(--line2);background:#000;box-shadow:0 30px 80px -30px rgba(0,0,0,.8)}
+.phone canvas{position:absolute;inset:0;width:100%;height:100%}
+.phone .ov{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.45) 0%,transparent 22%,transparent 58%,rgba(0,0,0,.85) 100%);pointer-events:none}
+.phone .top{position:absolute;top:16px;left:0;right:0;text-align:center;font-size:13px;font-weight:600;color:#fff;opacity:.9}
+.phone .top span{color:rgba(255,255,255,.55);font-weight:500;margin-right:16px}
+.phone .cap{position:absolute;left:16px;right:64px;bottom:22px;font-size:14px;color:#fff;line-height:1.4}
+.phone .cap b{display:block;font-size:14px;margin-bottom:5px}
+.phone .cap .tagline{color:rgba(255,255,255,.7);font-size:13px;margin-top:6px}
+.phone .side{position:absolute;right:12px;bottom:26px;display:flex;flex-direction:column;gap:18px;align-items:center;font-size:11px;color:#fff;font-weight:600}
+.phone .side div{display:flex;flex-direction:column;align-items:center;gap:4px}
+.phone .side svg{filter:drop-shadow(0 1px 2px rgba(0,0,0,.6))}
+.postnote{font-size:13px;color:var(--dim);margin-top:18px;text-align:center}
+
+/* pricing */
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:56px}
+.tier{border:1px solid var(--line2);border-radius:22px;padding:30px;background:var(--ink2);display:flex;flex-direction:column}
+.tier.hot{background:linear-gradient(180deg,rgba(215,255,94,.08),var(--ink2) 60%);border-color:rgba(215,255,94,.4)}
+.tier .tn{font-size:14px;color:var(--mute);font-weight:600}
+.tier .price{font-family:var(--serif);font-size:52px;letter-spacing:-.03em;line-height:1;margin:18px 0 6px}
+.tier .price small{font-family:var(--sans);font-size:14px;color:var(--mute);letter-spacing:0}
+.tier .for{color:#c3c7d4;font-size:15px;min-height:48px}
+.tier ul{list-style:none;margin:22px 0 28px;display:grid;gap:10px;font-size:14px;color:#c3c7d4}
+.tier li{display:flex;gap:10px}
+.tier li:before{content:"";flex:none;width:6px;height:6px;border-radius:50%;background:var(--lime);margin-top:8px}
+.tier .btn{margin-top:auto;justify-content:center}
+.proposed{font-size:12px;color:var(--dim);margin-top:18px}
+
+/* faq */
+.faq{display:grid;grid-template-columns:1fr 1fr;gap:1px;margin-top:52px;background:var(--line);border:1px solid var(--line);border-radius:22px;overflow:hidden}
+.q{background:var(--ink);padding:28px 30px}
+.q b{display:block;font-size:17px;font-weight:600;margin-bottom:8px;letter-spacing:-.01em}
+.q span{color:var(--mute);font-size:15px}
+
+/* signup */
+.signup{text-align:center;padding:130px 0 120px;position:relative;overflow:hidden}
+.signup h2{margin:0 auto}
+.signup .sub{margin:18px auto 0}
+.signup form{display:flex;gap:10px;max-width:460px;margin:36px auto 0}
+.signup input{flex:1;min-width:0;background:rgba(255,255,255,.04);border:1px solid var(--line2);border-radius:999px;padding:14px 20px;color:var(--text);font:inherit;outline:none}
+.signup .ok{margin-top:16px;font-size:14px;color:var(--lime);min-height:20px}
+footer{border-top:1px solid var(--line);padding:34px 0 50px;font-size:13px;color:var(--dim)}
+footer .wrap{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+
+.toast{position:fixed;left:50%;bottom:28px;transform:translate(-50%,20px);background:#171a24;border:1px solid var(--line2);padding:12px 18px;border-radius:12px;font-size:14px;opacity:0;transition:.3s;z-index:50;pointer-events:none;max-width:90vw}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .9s cubic-bezier(.2,.8,.2,1),transform .9s cubic-bezier(.2,.8,.2,1)}
+.reveal.in{opacity:1;transform:none}
+
+@media (max-width:960px){
+  .hero .wrap,.vote-grid,.tree-body{grid-template-columns:1fr}
+  .hero{padding-top:44px}
+  .steps{grid-template-columns:1fr 1fr}
+  .posts,.tiers{grid-template-columns:1fr}
+  .posts{max-width:360px;margin-left:auto;margin-right:auto}
+  .faq{grid-template-columns:1fr}
+  .detail{border-left:0;border-top:1px solid var(--line)}
+  .navlinks{display:none}
+  section{padding:80px 0}
+}
+@media (max-width:560px){
+  .wrap{padding:0 20px}
+  .steps{grid-template-columns:1fr}
+  .step{min-height:0}
+  .step h3{margin-top:26px}
+  .hstats{gap:22px}
+  .signup form,.suggest{flex-direction:column}
+  .tree-body .stage{min-height:340px}
+  .detail{padding:26px 22px}
+}
+@media (prefers-reduced-motion:reduce){.marquee .track{animation:none}.reveal{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="logo" href="#">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><circle cx="5" cy="13" r="3" fill="#d7ff5e"/><circle cx="21" cy="6" r="2.4" fill="#d7ff5e" opacity=".8"/><circle cx="21" cy="20" r="2.4" fill="#8fd3ff"/><path d="M7.5 12C12 11 14 6.5 18.6 6.2M7.5 14c4.5 1 6.5 5.5 11.1 5.8" stroke="#d7ff5e" stroke-width="1.4" stroke-linecap="round" opacity=".7"/></svg>
+      Thinklet Evolve <small>concept</small>
+    </a>
+    <div class="navlinks"><a href="#how">How it works</a><a href="#vote">Tonight's change</a><a href="#tree">Family tree</a><a href="#posts">Daily posts</a><a href="#grow">Grow your own</a></div>
+    <a class="btn small primary" href="#join">Follow Orbit</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <svg class="bgtree" viewBox="0 0 1400 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <defs><linearGradient id="bg1" x1="0" x2="1"><stop offset="0" stop-color="#d7ff5e" stop-opacity="0"/><stop offset=".5" stop-color="#d7ff5e" stop-opacity=".18"/><stop offset="1" stop-color="#d7ff5e" stop-opacity="0"/></linearGradient></defs>
+    <g fill="none" stroke="url(#bg1)" stroke-width="1">
+      <path d="M-20 420 C 200 420 260 300 460 300 S 720 180 900 190 S 1200 90 1420 80"/>
+      <path d="M460 300 C 620 300 640 420 820 430 S 1100 520 1420 500"/>
+      <path d="M-20 420 C 240 440 300 600 520 610 S 900 700 1420 720"/>
+      <path d="M820 430 C 960 440 1000 330 1160 320 S 1320 300 1420 290"/>
+      <path d="M520 610 C 700 620 740 540 900 560"/>
+    </g>
+  </svg>
+  <div class="wrap">
+    <div class="hero-copy">
+      <div class="eyebrow"><span class="live"></span> Day 9 is live · Day 10 ships in <b class="countdown">--:--:--</b></div>
+      <h1><span style="white-space:nowrap">This game is</span><br><em style="white-space:nowrap">never finished.</em></h1>
+      <p class="lede">Every night, Orbit ships one change its players asked for. Every earlier version stays playable forever. You don't build it. You steer it.</p>
+      <div class="cta">
+        <a class="btn primary" href="#vote">Vote on tonight's change</a>
+        <a class="btn" href="#tree">Explore its family tree →</a>
+      </div>
+      <div class="hstats">
+        <div><b>9</b>days evolved</div>
+        <div><b>14</b>playable versions</div>
+        <div><b>2</b>player forks</div>
+        <div><b id="totalVotes">3,921</b>votes cast</div>
+      </div>
+    </div>
+
+    <div class="device reveal">
+      <div class="device-top"><span class="title">ORBIT</span><span class="ver">DAY 9 · METEOR SHOWERS</span></div>
+      <div class="stage">
+        <canvas id="heroCanvas" aria-label="Playable game: Orbit, Day 9"></canvas>
+        <div class="pill" id="heroPill"><i></i>Autopilot · click to take over</div>
+        <div class="hint">Tap to reverse · hold to drop to the inner ring</div>
+      </div>
+      <div class="device-bot"><span class="tag">SHIPPED</span><span class="t">Last night: “meteor showers every so often” · requested by @riverstone · 733 votes</span></div>
+    </div>
+  </div>
+</header>
+
+<div class="marquee" aria-hidden="true"><div class="track" id="marquee"></div></div>
+
+<section id="how">
+  <div class="wrap">
+    <div class="kicker reveal">How it works</div>
+    <h2 class="reveal">Play today. Ask for something. <em>Wake up to a new game.</em></h2>
+    <div class="steps reveal">
+      <div class="step"><span class="n">01</span>
+        <svg width="34" height="34" viewBox="0 0 34 34" fill="none"><circle cx="17" cy="17" r="12" stroke="#d7ff5e" stroke-opacity=".4"/><circle cx="17" cy="5" r="3" fill="#d7ff5e"/></svg>
+        <h3>Play</h3><p>Today's version is always one tap away. It takes about ten seconds to learn and much longer to master.</p></div>
+      <div class="step"><span class="n">02</span>
+        <svg width="34" height="34" viewBox="0 0 34 34" fill="none"><rect x="5" y="8" width="24" height="16" rx="5" stroke="#d7ff5e" stroke-opacity=".6"/><path d="M11 24l-2 5 7-5" stroke="#d7ff5e" stroke-opacity=".6"/></svg>
+        <h3>Ask</h3><p>Suggest one change in plain words, like “give my tail teeth.” The top requests go to a vote.</p></div>
+      <div class="step"><span class="n">03</span>
+        <svg width="34" height="34" viewBox="0 0 34 34" fill="none"><path d="M24 7a11 11 0 1 0 3 15 9 9 0 0 1-3-15z" stroke="#d7ff5e" stroke-opacity=".6"/></svg>
+        <h3>It evolves overnight</h3><p>At midnight the winning change gets built, tested against the house rules, and shipped. Exactly one change, every night.</p></div>
+      <div class="step"><span class="n">04</span>
+        <svg width="34" height="34" viewBox="0 0 34 34" fill="none"><circle cx="7" cy="17" r="3" fill="#d7ff5e"/><circle cx="27" cy="9" r="3" fill="#d7ff5e" opacity=".6"/><circle cx="27" cy="25" r="3" fill="#8fd3ff"/><path d="M10 16c6-1 8-6 14-7M10 18c6 1 8 6 14 7" stroke="#d7ff5e" stroke-opacity=".5"/></svg>
+        <h3>Nothing is lost</h3><p>Yesterday's game is still here, and so is every day before it. Don't like where it's heading? Fork it and steer your own branch.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="vote" style="padding-top:20px">
+  <div class="wrap vote-grid">
+    <div>
+      <div class="kicker reveal">Tonight's change</div>
+      <h2 class="reveal">What should Day 10 <em>become?</em></h2>
+      <p class="sub reveal">Three requests made the ballot. One of them will be real by morning. Votes close at midnight.</p>
+      <div class="rules reveal">
+        <div class="rule"><div class="ic">1</div><div><b>One change a night</b><span>Small steps, so you can always see what changed and who asked for it.</span></div></div>
+        <div class="rule"><div class="ic">∞</div><div><b>Every ancestor stays playable</b><span>Nothing gets overwritten. Day 1 is still one tap away.</span></div></div>
+        <div class="rule"><div class="ic"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#d7ff5e" stroke-width="1.4"><circle cx="4" cy="3" r="1.6"/><circle cx="12" cy="3" r="1.6"/><circle cx="8" cy="13" r="1.6"/><path d="M4 4.6v1.4c0 2 4 2 4 4.4M12 4.6v1.4c0 2-4 2-4 4.4"/></svg></div><div><b>Anyone can fork</b><span>Split off at any day and your branch evolves with its own players.</span></div></div>
+        <div class="rule"><div class="ic">✓</div><div><b>The build has to pass</b><span>A change that breaks the game or ignores the request doesn't ship, and the runner-up takes its place.</span></div></div>
+      </div>
+    </div>
+    <div class="panel reveal">
+      <div class="panel-head"><h3>Ballot · Day 10</h3><span class="cd">closes in <b class="countdown">--:--:--</b></span></div>
+      <div id="ballot"></div>
+      <form class="suggest" id="suggestForm"><input id="suggestIn" maxlength="80" placeholder="Suggest a change for Day 11…" aria-label="Suggest a change"><button class="btn small primary" type="submit">Suggest</button></form>
+      <p class="fine">Demo: votes and suggestions stay in this page and aren't sent anywhere.</p>
+    </div>
+  </div>
+</section>
+
+<section id="tree">
+  <div class="wrap">
+    <div class="kicker reveal">The family tree</div>
+    <h2 class="reveal">Nine days old. <em>Three branches. Every version still playable.</em></h2>
+    <p class="sub reveal">Click any day to play it exactly as it was. Each version is its parent plus one change, so you can trace any feature back to the night it was born and the player who asked for it.</p>
+  </div>
+  <div class="wrap">
+    <div class="tree-shell reveal">
+      <div class="tree-scroll"><svg id="treeSvg" viewBox="0 0 1000 330" aria-label="Family tree of Orbit versions"></svg></div>
+      <div class="tree-body">
+        <div class="stage"><canvas id="treeCanvas" aria-label="Playable selected version"></canvas><div class="pill" id="treePill"><i></i>Autopilot · click to take over</div><div class="hint">Tap to reverse · hold to drop a ring</div></div>
+        <div class="detail" id="detail"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="posts">
+  <div class="wrap">
+    <div class="kicker reveal">The daily post</div>
+    <h2 class="reveal">It posts <em>its own</em> progress every day.</h2>
+    <p class="sub reveal">Every night's change comes with a short clip: “Day 23 of letting the internet evolve this game.” People follow the series, then come back to play the next episode.</p>
+    <div class="posts">
+      <div class="phone reveal"><canvas data-mini="d4"></canvas><div class="ov"></div><div class="top"><span>Following</span>For You</div>
+        <div class="side"><div><svg width="28" height="28" viewBox="0 0 24 24" fill="#fff"><path d="M12 21s-7.5-4.6-9.5-9.3C1.2 8.5 3.3 5 6.8 5c2 0 3.4 1.1 4.2 2.4h2C13.8 6.1 15.2 5 17.2 5c3.5 0 5.6 3.5 4.3 6.7C19.5 16.4 12 21 12 21z"/></svg>12.4K</div><div><svg width="26" height="26" viewBox="0 0 24 24" fill="#fff"><path d="M4 4h16v12H8l-4 4z"/></svg>1,208</div></div>
+        <div class="cap"><b>@thinklet.io</b>Day 4 of letting the internet evolve this game. Today: catch a spark and it splits in two ✨<div class="tagline">#orbit #day4 #gamedev</div></div></div>
+      <div class="phone reveal"><canvas data-mini="b2"></canvas><div class="ov"></div><div class="top"><span>Following</span>For You</div>
+        <div class="side"><div><svg width="28" height="28" viewBox="0 0 24 24" fill="#fff"><path d="M12 21s-7.5-4.6-9.5-9.3C1.2 8.5 3.3 5 6.8 5c2 0 3.4 1.1 4.2 2.4h2C13.8 6.1 15.2 5 17.2 5c3.5 0 5.6 3.5 4.3 6.7C19.5 16.4 12 21 12 21z"/></svg>31.9K</div><div><svg width="26" height="26" viewBox="0 0 24 24" fill="#fff"><path d="M4 4h16v12H8l-4 4z"/></svg>4,410</div></div>
+        <div class="cap"><b>@nox</b>I forked the game and turned the lights off. Blackout, day 7: now your comet pings sonar 🔦<div class="tagline">#orbit #blackout #fork</div></div></div>
+      <div class="phone reveal"><canvas data-mini="d9"></canvas><div class="ov"></div><div class="top"><span>Following</span>For You</div>
+        <div class="side"><div><svg width="28" height="28" viewBox="0 0 24 24" fill="#fff"><path d="M12 21s-7.5-4.6-9.5-9.3C1.2 8.5 3.3 5 6.8 5c2 0 3.4 1.1 4.2 2.4h2C13.8 6.1 15.2 5 17.2 5c3.5 0 5.6 3.5 4.3 6.7C19.5 16.4 12 21 12 21z"/></svg>18.2K</div><div><svg width="26" height="26" viewBox="0 0 24 24" fill="#fff"><path d="M4 4h16v12H8l-4 4z"/></svg>2,975</div></div>
+        <div class="cap"><b>@thinklet.io</b>Day 9: meteor showers. You picked this. Tomorrow's change is up to you. Link in bio ☄️<div class="tagline">#orbit #day9</div></div></div>
+    </div>
+    <p class="postnote">Mock posts. The games inside them are live and running on autopilot.</p>
+  </div>
+</section>
+
+<section id="grow">
+  <div class="wrap">
+    <div class="kicker reveal">Grow your own</div>
+    <h2 class="reveal">Orbit is the first. <em>Yours could be next.</em></h2>
+    <p class="sub reveal">Start any Thinklet (a game, a tool, a toy), turn on evolution, and let your players steer it one night at a time. The ballot, the build, the checks and the family tree are all handled.</p>
+    <div class="tiers">
+      <div class="tier reveal"><div class="tn">Player</div><div class="price">Free</div><div class="for">Play any version, vote every night, and suggest changes.</div>
+        <ul><li>Every version of every game</li><li>One vote a night</li><li>Your name on the changes you started</li></ul><a class="btn" href="#join">Start playing</a></div>
+      <div class="tier hot reveal"><div class="tn">Steerer</div><div class="price">$3<small> / month</small></div><div class="for">For players who want a bigger hand on the wheel.</div>
+        <ul><li>One of your requests guaranteed on a ballot each week</li><li>Early access to tonight's build</li><li>Fork any game into your own branch</li></ul><a class="btn primary" href="#join">Get Steerer</a></div>
+      <div class="tier reveal"><div class="tn">Creator</div><div class="price">$19<small> / month</small></div><div class="for">Run your own evolving Thinklet with your own audience.</div>
+        <ul><li>Nightly builds and checks included</li><li>Your own ballot, rules and family tree</li><li>Auto-made daily clip for your socials</li></ul><a class="btn" href="#join">Start a game</a></div>
+    </div>
+    <p class="proposed">Proposed prices for a concept. Nothing here is for sale yet.</p>
+  </div>
+</section>
+
+<section id="faq" style="padding-top:20px">
+  <div class="wrap">
+    <div class="kicker reveal">Questions</div>
+    <h2 class="reveal">Won't it turn into <em>a mess?</em></h2>
+    <div class="faq reveal">
+      <div class="q"><b>Won't the crowd ruin it?</b><span>Maybe on one branch. But it changes one step at a time, every earlier version survives, and anyone can fork from a good day. Bad ideas lose players, and good branches keep them.</span></div>
+      <div class="q"><b>Who actually builds the change?</b><span>An AI builds it overnight from the winning request. Then a check confirms the game still runs and the change matches what people voted for. If it fails, the runner-up ships.</span></div>
+      <div class="q"><b>Why keep every version?</b><span>Because the history is the fun part. You can play the night a feature was born, see who asked for it, and pick up a branch the main line left behind.</span></div>
+      <div class="q"><b>Is Orbit real?</b><span>The game on this page is a working prototype. Every version in the tree runs, and you can play them all. The players, votes, posts and prices are made up to show the idea.</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="signup" id="join">
+  <div class="wrap">
+    <div class="kicker reveal">Day 10 ships at midnight</div>
+    <h2 class="reveal">Be there for <em>the next change.</em></h2>
+    <p class="sub reveal">Get one short note a day: what changed, who asked for it, and what's on tomorrow's ballot.</p>
+    <form id="joinForm" class="reveal"><input type="email" required placeholder="you@email.com" aria-label="Email"><button class="btn primary" type="submit">Follow Orbit</button></form>
+    <div class="ok" id="joinOk"></div>
+  </div>
+</section>
+
+<footer><div class="wrap"><span>Thinklet Evolve: a concept by LOL Agency for Thinklet.io · 2026</span><span>Concept page. Players, votes, posts and prices are illustrative. The sign-up form doesn't send anything.</span></div></footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(()=>{
+const TAU=Math.PI*2;
+const $=s=>document.querySelector(s);
+const dist=(a,b)=>Math.hypot(a[0]-b[0],a[1]-b[1]);
+const angDiff=(a,b)=>{let d=(b-a)%TAU;if(d>Math.PI)d-=TAU;if(d<-Math.PI)d+=TAU;return d};
+
+const PAL={
+  main:{bg:'#07080d',comet:'#d7ff5e',spark:'#ffcf6b',rock:'#ff6b5e',ring:'rgba(215,255,94,.11)',tag:'#d7ff5e'},
+  blackout:{bg:'#04050a',comet:'#8fd3ff',spark:'#ffffff',rock:'#ff4d6d',ring:'rgba(143,211,255,.10)',tag:'#8fd3ff'},
+  zen:{bg:'#0b0812',comet:'#ffd1f0',spark:'#b8f2e6',rock:'#ff6b5e',ring:'rgba(255,209,240,.13)',tag:'#ffd1f0'}
+};
+
+/* ---------- the lineage: each version = parent + one change ---------- */
+const V=[
+ {id:'d1',day:1,parent:null,branch:'main',title:'Orbit',change:'A comet circles a ring. Tap to reverse direction. Catch the sparks.',by:'the seed',votes:null,gene:'Orbit + sparks',delta:{rocks:false,rings:1}},
+ {id:'d2',day:2,parent:'d1',branch:'main',title:'Rocks drift in',change:'Rocks fall toward the center. Touch one and your streak resets.',by:'@kitepilot',votes:318,gene:'Rocks',delta:{rocks:true}},
+ {id:'d3',day:3,parent:'d2',branch:'main',title:'A second ring',change:'Hold to drop to an inner ring. Let go to climb back out.',by:'@mireille',votes:402,gene:'Two rings',delta:{rings:2}},
+ {id:'d4',day:4,parent:'d3',branch:'main',title:'Sparks split',change:'Catch a spark and two new ones appear.',by:'@0xbenji',votes:377,gene:'Splitting sparks',delta:{split:true}},
+ {id:'d5',day:5,parent:'d4',branch:'main',title:'It speeds up',change:'Every 10 sparks, everything moves 12% faster.',by:'@tomasz',votes:451,gene:'Speed-up',delta:{accel:true}},
+ {id:'d6',day:6,parent:'d5',branch:'main',title:'A solid tail',change:'Your tail smashes rocks now. Every smash is worth a point.',by:'@hana.k',votes:612,gene:'Solid tail',delta:{tail:true}},
+ {id:'d7',day:7,parent:'d6',branch:'main',title:'Twin comet',change:'A mirror comet rides the opposite side. Now you guard both.',by:'@dex',votes:540,gene:'Twin comet',delta:{twin:true}},
+ {id:'d8',day:8,parent:'d7',branch:'main',title:'Magnet',change:'Nearby sparks bend toward your comets.',by:'@juno',votes:488,gene:'Magnet',delta:{magnet:true}},
+ {id:'d9',day:9,parent:'d8',branch:'main',title:'Meteor showers',change:'Every 18 seconds, a ring of seven rocks comes down at once.',by:'@riverstone',votes:733,gene:'Meteor showers',delta:{shower:true},live:true},
+ {id:'z1',day:4,parent:'d3',branch:'zen',title:'Zen',change:'Forked by @lune on Day 3: no rocks, no score, just rings and sparks.',by:'@lune (fork)',votes:null,gene:'No rocks, no score',delta:{rocks:false,zen:true,palette:'zen'}},
+ {id:'z2',day:5,parent:'z1',branch:'zen',title:'Ripples',change:'Every spark you catch sends a ripple of light across the rings.',by:'@lune',votes:96,gene:'Ripples',delta:{ripples:true}},
+ {id:'b1',day:6,parent:'d5',branch:'blackout',title:'Blackout',change:'Forked by @nox on Day 5: the lights go out. You only see what is near your comet.',by:'@nox (fork)',votes:null,gene:'Darkness',delta:{dark:true,palette:'blackout'}},
+ {id:'b2',day:7,parent:'b1',branch:'blackout',title:'Sonar',change:'Every two seconds your comet pings, and the pulse lights up rocks as it passes.',by:'@ferro',votes:204,gene:'Sonar',delta:{sonar:true}},
+ {id:'b3',day:8,parent:'b2',branch:'blackout',title:'Glowing sparks',change:'Sparks shine through the dark, so you always know where to go.',by:'@nox',votes:251,gene:'Glowing sparks',delta:{glow:true}}
+];
+const byId=Object.fromEntries(V.map(v=>[v.id,v]));
+const lineage=id=>{const out=[];let n=byId[id];while(n){out.unshift(n);n=n.parent?byId[n.parent]:null}return out};
+const configFor=id=>{const c={rocks:false,rings:1,palette:'main'};lineage(id).forEach(n=>Object.assign(c,n.delta));return c};
+
+/* ---------- the game engine ---------- */
+class Game{
+  constructor(canvas,opts={}){
+    this.c=canvas;this.x=canvas.getContext('2d');this.o=opts;this.auto=true;this.visible=true;this.down=0;this.holding=false;
+    this.stars=Array.from({length:70},()=>({x:Math.random(),y:Math.random(),r:Math.random()*1.2+.2,a:Math.random()*.5+.1}));
+    new ResizeObserver(()=>this.resize()).observe(canvas);this.resize();
+    if(!opts.passive){
+      canvas.addEventListener('pointerdown',e=>{e.preventDefault();this.takeOver();this.down=performance.now();this.holding=true});
+      window.addEventListener('pointerup',()=>{if(!this.holding)return;this.holding=false;if(performance.now()-this.down<170)this.dir*=-1});
+      window.addEventListener('pointercancel',()=>{this.holding=false});
+    }
+    this.setConfig(opts.config);
+  }
+  takeOver(){if(this.auto){this.auto=false;this.o.onTakeOver&&this.o.onTakeOver()}}
+  resize(){const r=this.c.getBoundingClientRect();const d=Math.min(window.devicePixelRatio||1,2);this.w=Math.max(1,r.width);this.h=Math.max(1,r.height);this.c.width=this.w*d;this.c.height=this.h*d;this.x.setTransform(d,0,0,d,0,0);this.s=Math.min(this.w,this.h)/420}
+  get pal(){return PAL[this.cfg.palette]||PAL.main}
+  setConfig(cfg){this.cfg=cfg;this.reset()}
+  reset(){
+    this.a=-Math.PI/2;this.dir=1;this.ringT=0;this.sparks=[];this.rocks=[];this.parts=[];this.trails=[[],[]];this.ripples=[];this.pulses=[];
+    this.score=0;this.best=0;this.t=0;this.nextRock=1.4;this.nextShower=this.cfg.shower?7:1e9;this.nextPulse=.6;this.flash=0;this.grace=0;this.warn=0;this.acd=0;this.autoHold=false;
+    for(let i=0;i<3;i++)this.spawnSpark();
+  }
+  get R(){return Math.min(this.w,this.h)*.36}
+  ringR(i){return i?this.R*.6:this.R}
+  cometR(){return this.R+(this.R*.6-this.R)*this.ringT}
+  pos(a,r){return[this.w/2+Math.cos(a)*r,this.h/2+Math.sin(a)*r]}
+  mult(){return this.cfg.accel?1+.12*Math.min(6,Math.floor(this.score/10)):1}
+  spawnSpark(){const ring=this.cfg.rings===2&&Math.random()<.45?1:0;this.sparks.push({a:Math.random()*TAU,ring,born:this.t})}
+  spawnRock(th){const R=Math.hypot(this.w,this.h)/2+20;const n=7,shape=Array.from({length:n},()=>.75+Math.random()*.45);
+    this.rocks.push({r:R,th:th??Math.random()*TAU,vr:(52+Math.random()*44)*this.s*this.mult(),vth:(Math.random()-.5)*.3,shape,rot:Math.random()*TAU,size:(7+Math.random()*5)*this.s})}
+  burst(x,y,col,n=14){for(let i=0;i<n;i++){const a=Math.random()*TAU,v=(40+Math.random()*150)*this.s;this.parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,life:1,col})}}
+  comets(){const r=this.cometR();const l=[this.a];if(this.cfg.twin)l.push(this.a+Math.PI);return l.map(a=>({a,r,p:this.pos(a,r)}))}
+  autopilot(dt){
+    const c=this.cfg;this.acd-=dt;const cs=this.comets();let threat=null;
+    if(c.rocks)for(const r of this.rocks){if(!r.p)continue;for(const cm of cs){const d=dist(r.p,cm.p);if(d<78*this.s){const ra=Math.atan2(r.p[1]-this.h/2,r.p[0]-this.w/2);const ahead=angDiff(cm.a,ra)*this.dir;if(ahead>-.08&&ahead<.75)threat=r}}}
+    if(threat&&this.acd<=0){this.dir*=-1;this.acd=.5;if(c.rings===2&&Math.random()<.5)this.autoHold=!this.autoHold;return}
+    let best=null,bf=1e9,bb=1e9;
+    for(const sp of this.sparks){const f=((sp.a-this.a)*this.dir%TAU+TAU)%TAU;const b=TAU-f;if(Math.min(f,b)<Math.min(bf,bb)){best=sp;bf=f;bb=b}}
+    if(best){if(bb<bf*.55&&this.acd<=0){this.dir*=-1;this.acd=1.1}
+      if(c.rings===2&&Math.min(bf,bb)<1.1&&this.acd<=.2)this.autoHold=best.ring===1}
+  }
+  update(dt){
+    const c=this.cfg;this.t+=dt;
+    if(this.auto)this.autopilot(dt);
+    const hold=this.auto?this.autoHold:(this.holding&&performance.now()-this.down>170);
+    this.ringT+=(((c.rings===2&&hold)?1:0)-this.ringT)*Math.min(1,dt*9);
+    this.a+=this.dir*1.5*this.mult()*(c.zen?.75:1)*dt;
+    const cs=this.comets();
+    cs.forEach((cm,i)=>this.trails[i].push({x:cm.p[0],y:cm.p[1],t:this.t}));
+    const life=c.tail?.55:.32;this.trails.forEach(tr=>{while(tr.length&&this.t-tr[0].t>life)tr.shift()});
+    if(!c.twin)this.trails[1]=[];
+    // sparks
+    for(let i=this.sparks.length-1;i>=0;i--){const sp=this.sparks[i];
+      if(c.magnet)for(const cm of cs){if(Math.abs(this.ringR(sp.ring)-cm.r)<22*this.s){const d=angDiff(sp.a,cm.a);if(Math.abs(d)<.8)sp.a+=Math.sign(d)*1.1*dt}}
+      const p=this.pos(sp.a,this.ringR(sp.ring));
+      for(const cm of cs){if(dist(p,cm.p)<16*this.s){this.sparks.splice(i,1);this.score++;this.best=Math.max(this.best,this.score);this.burst(p[0],p[1],this.pal.spark,10);
+        if(c.ripples)this.ripples.push({x:p[0],y:p[1],r:4,life:1});
+        const n=c.split&&this.sparks.length<7?2:1;for(let k=0;k<n;k++)this.spawnSpark();break}}
+    }
+    if(this.sparks.length<2)this.spawnSpark();
+    // rocks
+    if(c.rocks){this.nextRock-=dt;if(this.nextRock<=0){this.spawnRock();this.nextRock=(1.5+Math.random()*1.1)/this.mult()}
+      if(c.shower){this.nextShower-=dt;if(this.nextShower<1.3&&this.nextShower>0)this.warn=1;if(this.nextShower<=0){const base=Math.random()*TAU;for(let k=0;k<7;k++)this.spawnRock(base+k*TAU/7);this.nextShower=18}}}
+    this.grace-=dt;
+    for(let i=this.rocks.length-1;i>=0;i--){const r=this.rocks[i];r.r-=r.vr*dt;r.th+=r.vth*dt;r.rot+=dt*.8;const p=this.pos(r.th,r.r);r.p=p;
+      if(r.r<8*this.s){this.rocks.splice(i,1);continue}
+      if(c.tail){let hit=false;for(const tr of this.trails){for(const pt of tr){if(this.t-pt.t<.12)break;if(dist(p,[pt.x,pt.y])<r.size+3*this.s){hit=true;break}}if(hit)break}
+        if(hit){this.rocks.splice(i,1);this.burst(p[0],p[1],this.pal.rock,16);this.score++;this.best=Math.max(this.best,this.score);continue}}
+      for(const cm of cs){if(this.grace<=0&&dist(p,cm.p)<r.size+6*this.s){this.rocks.splice(i,1);this.crash(cm.p);break}}
+    }
+    if(c.sonar){this.nextPulse-=dt;if(this.nextPulse<=0){this.pulses.push({r:0,x:cs[0].p[0],y:cs[0].p[1]});this.nextPulse=2.1}}
+    this.pulses.forEach(p=>p.r+=270*this.s*dt);this.pulses=this.pulses.filter(p=>p.r<Math.max(this.w,this.h)*1.1);
+    this.ripples.forEach(r=>{r.r+=130*this.s*dt;r.life-=dt*.6});this.ripples=this.ripples.filter(r=>r.life>0);
+    this.parts.forEach(q=>{q.x+=q.vx*dt;q.y+=q.vy*dt;q.vx*=.95;q.vy*=.95;q.life-=dt*1.5});this.parts=this.parts.filter(q=>q.life>0);
+    this.flash=Math.max(0,this.flash-dt*2.2);this.warn=Math.max(0,this.warn-dt*.9);
+  }
+  crash(p){this.burst(p[0],p[1],this.pal.comet,28);this.score=0;this.flash=1;this.grace=1.3}
+  drawRock(r,alpha=1,outline=false){const x=this.x;x.save();x.translate(r.p[0],r.p[1]);x.rotate(r.rot);x.globalAlpha=alpha;x.beginPath();
+    r.shape.forEach((k,i)=>{const a=i/r.shape.length*TAU;const px=Math.cos(a)*r.size*k,py=Math.sin(a)*r.size*k;i?x.lineTo(px,py):x.moveTo(px,py)});x.closePath();
+    if(outline){x.strokeStyle=this.pal.rock;x.lineWidth=1.6;x.stroke()}else{x.fillStyle=this.pal.rock;x.shadowColor=this.pal.rock;x.shadowBlur=12*this.s;x.fill()}x.restore()}
+  drawSpark(sp,alpha=1){const x=this.x,p=this.pos(sp.a,this.ringR(sp.ring));const tw=.75+.25*Math.sin(this.t*6+sp.a*9);const rr=4.2*this.s*tw;
+    x.save();x.globalAlpha=alpha;x.fillStyle=this.pal.spark;x.shadowColor=this.pal.spark;x.shadowBlur=16*this.s;x.beginPath();
+    for(let i=0;i<8;i++){const a=i/8*TAU+this.t;const k=i%2?rr*.45:rr*1.5;i?x.lineTo(p[0]+Math.cos(a)*k,p[1]+Math.sin(a)*k):x.moveTo(p[0]+Math.cos(a)*k,p[1]+Math.sin(a)*k)}x.closePath();x.fill();x.restore()}
+  draw(){
+    const x=this.x,c=this.cfg,P=this.pal,w=this.w,h=this.h,s=this.s;
+    x.fillStyle=P.bg;x.fillRect(0,0,w,h);
+    const g0=x.createRadialGradient(w/2,h/2,0,w/2,h/2,Math.max(w,h)*.7);g0.addColorStop(0,'rgba(255,255,255,.035)');g0.addColorStop(1,'rgba(0,0,0,0)');x.fillStyle=g0;x.fillRect(0,0,w,h);
+    for(const st of this.stars){x.globalAlpha=st.a*(.7+.3*Math.sin(this.t*1.3+st.x*20));x.fillStyle='#fff';x.fillRect(st.x*w,st.y*h,st.r,st.r)}x.globalAlpha=1;
+    // rings
+    x.lineWidth=1.2;for(let i=0;i<c.rings;i++){x.strokeStyle=P.ring;x.beginPath();x.arc(w/2,h/2,this.ringR(i),0,TAU);x.stroke()}
+    x.fillStyle=P.ring;x.beginPath();x.arc(w/2,h/2,3*s,0,TAU);x.fill();
+    // ripples
+    for(const r of this.ripples){x.strokeStyle=P.spark;x.globalAlpha=r.life*.5;x.lineWidth=1.5;x.beginPath();x.arc(r.x,r.y,r.r,0,TAU);x.stroke()}x.globalAlpha=1;
+    this.sparks.forEach(sp=>this.drawSpark(sp));
+    // trails
+    for(const tr of this.trails){for(let k=1;k<tr.length;k++){const f=k/tr.length;x.strokeStyle=P.comet;x.globalAlpha=f*(c.tail?.9:.55);x.lineWidth=(c.tail?6:3.2)*s*f;x.lineCap='round';x.beginPath();x.moveTo(tr[k-1].x,tr[k-1].y);x.lineTo(tr[k].x,tr[k].y);x.stroke()}}x.globalAlpha=1;
+    for(const r of this.rocks)if(r.p)this.drawRock(r);
+    const cs=this.comets();
+    for(const cm of cs){const blink=this.grace>0&&Math.floor(this.t*12)%2;if(blink)continue;const g=x.createRadialGradient(cm.p[0],cm.p[1],0,cm.p[0],cm.p[1],22*s);g.addColorStop(0,P.comet);g.addColorStop(.25,P.comet+'aa');g.addColorStop(1,P.comet+'00');x.fillStyle=g;x.beginPath();x.arc(cm.p[0],cm.p[1],22*s,0,TAU);x.fill();x.fillStyle='#fff';x.beginPath();x.arc(cm.p[0],cm.p[1],3.6*s,0,TAU);x.fill()}
+    for(const q of this.parts){x.globalAlpha=Math.max(0,q.life);x.fillStyle=q.col;x.fillRect(q.x-1.5*s,q.y-1.5*s,3*s,3*s)}x.globalAlpha=1;
+    // darkness
+    if(c.dark){const [cx,cy]=cs[0].p;const lr=92*s;const g=x.createRadialGradient(cx,cy,lr*.25,cx,cy,lr*1.5);g.addColorStop(0,'rgba(3,4,8,0)');g.addColorStop(1,'rgba(3,4,8,.97)');x.fillStyle=g;x.fillRect(0,0,w,h);
+      for(const p of this.pulses){const a=Math.max(0,1-p.r/(Math.max(w,h)*.9));x.strokeStyle=P.comet;x.globalAlpha=a*.5;x.lineWidth=2;x.beginPath();x.arc(p.x,p.y,p.r,0,TAU);x.stroke();x.globalAlpha=1;
+        for(const r of this.rocks){if(!r.p)continue;const d=dist(r.p,[p.x,p.y]);if(Math.abs(d-p.r)<34*s)this.drawRock(r,a*(1-Math.abs(d-p.r)/(34*s)),true)}}
+      this.sparks.forEach(sp=>this.drawSpark(sp,c.glow?.95:.22));
+      x.strokeStyle=P.ring;x.globalAlpha=.5;for(let i=0;i<c.rings;i++){x.beginPath();x.arc(w/2,h/2,this.ringR(i),0,TAU);x.stroke()}x.globalAlpha=1}
+    if(this.flash){x.fillStyle=`rgba(255,90,80,${this.flash*.16})`;x.fillRect(0,0,w,h)}
+    if(this.warn){x.fillStyle=P.rock;x.globalAlpha=this.warn*(.6+.4*Math.sin(this.t*20));x.font=`600 ${Math.round(12*s+2)}px ui-monospace,Menlo,monospace`;x.textAlign='center';x.fillText('METEOR SHOWER',w/2,h/2+4*s);x.globalAlpha=1}
+    if(!c.zen&&!this.o.noHud){x.textAlign='right';x.fillStyle='rgba(255,255,255,.85)';x.font=`500 ${Math.round(22*s+6)}px "Iowan Old Style",Georgia,serif`;x.fillText(this.score,w-16,Math.round(22*s+22));
+      x.fillStyle='rgba(255,255,255,.35)';x.font=`500 ${Math.round(9*s+3)}px ui-monospace,Menlo,monospace`;x.fillText('BEST '+this.best,w-16,Math.round(22*s+40))}
+  }
+}
+
+const games=[];
+const io=new IntersectionObserver(es=>es.forEach(e=>{const g=games.find(g=>g.c===e.target);if(g)g.visible=e.isIntersecting}),{threshold:0});
+function addGame(canvas,opts){const g=new Game(canvas,opts);games.push(g);io.observe(canvas);return g}
+let last=performance.now();
+function loop(now){const dt=Math.min(.033,(now-last)/1000);last=now;for(const g of games)if(g.visible){g.update(dt);g.draw()}requestAnimationFrame(loop)}
+
+const hero=addGame($('#heroCanvas'),{config:configFor('d9'),onTakeOver:()=>$('#heroPill').style.opacity=0});
+document.querySelectorAll('canvas[data-mini]').forEach(cv=>addGame(cv,{config:configFor(cv.dataset.mini),passive:true,noHud:true}));
+const treeGame=addGame($('#treeCanvas'),{config:configFor('d9'),onTakeOver:()=>$('#treePill').style.opacity=0});
+requestAnimationFrame(loop);
+
+/* ---------- marquee of shipped changes ---------- */
+const mainLine=V.filter(v=>v.branch==='main').slice().reverse();
+const mq=mainLine.map(v=>`<span class="item"><b>DAY ${v.day}</b>${v.title} · <em>${v.by}</em>${v.votes?` · ${v.votes} votes`:''}</span>`).join('');
+$('#marquee').innerHTML=mq+mq;
+
+/* ---------- family tree ---------- */
+const BR={main:{y:170,col:'#d7ff5e',label:'Main line'},zen:{y:62,col:'#ffd1f0',label:'Zen · fork by @lune'},blackout:{y:278,col:'#8fd3ff',label:'Blackout · fork by @nox'}};
+const nx=v=>62+(v.day-1)*108, ny=v=>BR[v.branch].y;
+function renderTree(sel){
+  const svg=$('#treeSvg');let h='';
+  h+=`<defs><filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="4"/></filter></defs>`;
+  for(const k in BR){const b=BR[k];const first=V.find(v=>v.branch===k);h+=`<text class="blabel" x="${nx(first)-14}" y="${b.y-28}" fill="${b.col}" opacity=".75">${b.label}</text>`}
+  const line=new Set(lineage(sel).map(n=>n.id));
+  for(const v of V){if(!v.parent)continue;const p=byId[v.parent];const x1=nx(p),y1=ny(p),x2=nx(v),y2=ny(v);const on=line.has(v.id);
+    h+=`<path d="M${x1} ${y1} C ${x1+54} ${y1}, ${x2-54} ${y2}, ${x2} ${y2}" fill="none" stroke="${BR[v.branch].col}" stroke-width="${on?2.4:1.2}" stroke-opacity="${on?.9:.28}" ${v.branch!==p.branch?'stroke-dasharray="4 5"':''}/>`}
+  for(const v of V){const x=nx(v),y=ny(v),col=BR[v.branch].col,isSel=v.id===sel,on=line.has(v.id);
+    h+=`<g class="node${isSel?' sel':''}" data-id="${v.id}" tabindex="0" role="button" aria-label="Day ${v.day}: ${v.title}">`;
+    if(v.live)h+=`<circle cx="${x}" cy="${y}" r="20" fill="none" stroke="${col}" stroke-opacity=".5"><animate attributeName="r" values="14;26;14" dur="2.4s" repeatCount="indefinite"/><animate attributeName="stroke-opacity" values=".6;0;.6" dur="2.4s" repeatCount="indefinite"/></circle>`;
+    if(isSel)h+=`<circle cx="${x}" cy="${y}" r="18" fill="${col}" opacity=".35" filter="url(#glow)"/>`;
+    h+=`<circle class="core" cx="${x}" cy="${y}" r="${isSel?15:12}" fill="${on?col:'#161a24'}" stroke="${col}" stroke-opacity="${on?1:.5}"/>`;
+    h+=`<text x="${x}" y="${y+4}" text-anchor="middle" style="fill:${on?'#0b0d04':col}">${v.day}</text>`;
+    h+=`<text class="lab" x="${x}" y="${y+34}" text-anchor="middle">${v.title}</text>${v.live?`<text class="lab" x="${x}" y="${y-26}" text-anchor="middle" style="fill:${col};letter-spacing:.14em">LIVE</text>`:''}</g>`}
+  svg.innerHTML=h;
+  svg.querySelectorAll('.node').forEach(n=>{const go=()=>select(n.dataset.id);n.addEventListener('click',go);n.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go()}})});
+}
+function select(id){
+  const v=byId[id],col=BR[v.branch].col;renderTree(id);
+  treeGame.setConfig(configFor(id));
+  const chips=lineage(id).map((n,i,a)=>`<span class="chip${i===a.length-1?' new':''}" style="${i===a.length-1?`color:${col}`:''}">${n.gene}</span>`).join('');
+  $('#detail').innerHTML=`<div class="dday" style="color:${col}">${BR[v.branch].label.split(' ·')[0]} · Day ${v.day}${v.live?' · live now':''}</div>
+    <h3>${v.title}</h3><p>${v.change}</p>
+    <div class="req"><span>Requested by <b>${v.by}</b></span>${v.votes?`<span><b>${v.votes}</b> votes</span>`:''}<span><b>${lineage(id).length}</b> changes from Day 1</span></div>
+    <div class="genes"><div class="gl">What this version carries, oldest first:</div><div class="chips">${chips}</div></div>
+    <div class="acts"><button class="btn small primary" id="replay">Restart this version</button><button class="btn small" id="fork">Fork from here</button></div>`;
+  $('#replay').onclick=()=>treeGame.reset();
+  $('#fork').onclick=()=>toast(`In the real product this would start your own branch from Day ${v.day}. It's a concept, so nothing was created.`);
+}
+select('d9');
+
+/* ---------- ballot ---------- */
+let voted=null;
+const ballot=[
+  {t:'Craters: rocks that hit the center leave slow zones',by:'@kitepilot',v:612},
+  {t:'The rings slowly rotate against you',by:'@mireille',v:494},
+  {t:'A boss asteroid every 100 sparks',by:'@dex',v:391}
+];
+function renderBallot(){const tot=ballot.reduce((a,b)=>a+b.v,0);
+  $('#ballot').innerHTML=ballot.map((b,i)=>{const pct=Math.round(b.v/tot*100);return `<button class="opt${voted===i?' mine':''}" data-i="${i}"><span class="bar" style="width:${pct}%"></span><span class="row"><span><span class="txt">${b.t}</span><span class="who">${b.by} · ${b.v.toLocaleString()} votes${voted===i?' · your vote':''}</span></span><span class="pct">${pct}%</span></span></button>`}).join('');
+  $('#ballot').querySelectorAll('.opt').forEach(el=>el.onclick=()=>{const i=+el.dataset.i;if(voted!==null)ballot[voted].v--;if(voted===i){voted=null}else{voted=i;ballot[i].v++}renderBallot()});
+  $('#totalVotes').textContent=(3921+(voted!==null?1:0)).toLocaleString();
+}
+renderBallot();
+$('#suggestForm').addEventListener('submit',e=>{e.preventDefault();const val=$('#suggestIn').value.trim();if(!val)return;$('#suggestIn').value='';toast(`Added to the Day 11 queue (in this page only): “${val.replace(/[<>&]/g,'')}”`)});
+
+/* ---------- countdown to local midnight ---------- */
+function tick(){const n=new Date(),m=new Date(n);m.setHours(24,0,0,0);let s=Math.max(0,Math.floor((m-n)/1000));const hh=String(Math.floor(s/3600)).padStart(2,'0'),mm=String(Math.floor(s%3600/60)).padStart(2,'0'),ss=String(s%60).padStart(2,'0');document.querySelectorAll('.countdown').forEach(el=>el.textContent=`${hh}:${mm}:${ss}`)}
+tick();setInterval(tick,1000);
+
+/* ---------- misc ---------- */
+let tt;function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('on');clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('on'),3600)}
+$('#joinForm').addEventListener('submit',e=>{e.preventDefault();$('#joinOk').textContent="You're on the list. (Demo only: nothing was sent or saved.)"});
+const ro=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');ro.unobserve(e.target)}}),{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+})();
+</script>
+</body>
+</html>
